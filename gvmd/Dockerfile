@@ -26,4 +26,4 @@ EXPOSE 9390
 COPY docker-entrypoint.sh /usr/local/bin/
 ENTRYPOINT ["docker-entrypoint.sh"]
 
-CMD ["gvmd", "-f", "--listen=0.0.0.0", "--port=9390"]
+CMD ["gvmd", "--listen-owner=gvm", "--listen-group=gvm", "--osp-vt-update=/run/ospd/ospd-openvas.sock", "-f"]

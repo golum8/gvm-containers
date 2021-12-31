@@ -19,4 +19,5 @@ EXPOSE 80
 COPY docker-entrypoint.sh /usr/local/bin/
 ENTRYPOINT ["docker-entrypoint.sh"]
 
-CMD ["gsad", "-f", "--listen=0.0.0.0", "--port=80", "--http-only", "--mlisten=$GVMD_HOST", "--mport=$GVMD_PORT"]
+# CMD ["gsad", "-f", "--listen=0.0.0.0", "--port=80", "--http-only", "--mlisten=$GVMD_HOST", "--mport=$GVMD_PORT"]
+CMD ["gsad", "-f", "--listen=0.0.0.0", "--port=80", "--http-only"]
