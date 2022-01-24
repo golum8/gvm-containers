@@ -25,6 +25,7 @@ services:
     # image: admirito/gvmd:21
     build:
       gvmd/.
+      image: kubiaart/gvmd:latest
     environment:
       GVMD_POSTGRESQL_URI: postgresql://gvmduser:mypassword@gvm-postgres:5432/gvmd?application_name=gvmd
       # see https://marlam.de/msmtp/ for possible configuration options for the default system account
@@ -51,6 +52,7 @@ services:
     #image: admirito/gsad:21
     build:
       gsad/.
+    image: kubiaart/gsad:latest
     volumes:
       - run-gvm:/run/gvm
     ports:
@@ -101,6 +103,7 @@ services:
   # CONNECTED /run/ospd/ospd.sock
   #  image: admirito/gvmd:21
     build: mixeway/.
+    image: kubiaart/mixeway:latest
   #  environment:
       # MIXEWAY_SRC_URI: https://github.com/Mixeway/MixewayOpenVASRestAPI/releases/download/v1.2.0/MixewayOpenVasRestAPI-1.2.0-SNAPSHOT.jar
       

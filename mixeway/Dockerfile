@@ -1,7 +1,7 @@
 FROM ubuntu:focal
 MAINTAINER Mohammad Razavi <mrazavi64@gmail.com>
 
-ARG MIXEWAY_SRC_URI="https://github.com/Mixeway/MixewayOpenVASRestAPI/releases/download/v1.2.0/MixewayOpenVasRestAPI-1.2.0-SNAPSHOT.jar"
+ARG MIXEWAY_SRC_URI="https://github.com/Mixeway/MixewayOpenVASRestAPI/releases/download/v1.2.1/MixewayOpenVasRestAPI-1.2.1-SNAPSHOT.jar"
 
 RUN set -ex; \
     apt update; \
