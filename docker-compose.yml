@@ -25,7 +25,7 @@ services:
     # image: admirito/gvmd:21
     build:
       gvmd/.
-      image: kubiaart/gvmd:latest
+    image: kubiaart/gvmd:latest
     environment:
       GVMD_POSTGRESQL_URI: postgresql://gvmduser:mypassword@gvm-postgres:5432/gvmd?application_name=gvmd
       # see https://marlam.de/msmtp/ for possible configuration options for the default system account
