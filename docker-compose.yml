@@ -55,6 +55,7 @@ services:
     image: kubiaart/gsad:latest
     volumes:
       - run-gvm:/run/gvm
+      - run-ospd:/run/ospd
     ports:
       - 8080:80
     
@@ -69,7 +70,8 @@ services:
   openvas:
     # LISTENING /run/ospd/ospd.sock
     # CONNECTED /run/redis/redis.sock
-    image: admirito/openvas-scanner:21
+    build: openvas-scanner/.
+    image: kubiaart/openvas-scanner:21
     privileged: true
     sysctls:
       net.core.somaxconn: '2048'
@@ -106,7 +108,9 @@ services:
     image: kubiaart/mixeway:latest
   #  environment:
       # MIXEWAY_SRC_URI: https://github.com/Mixeway/MixewayOpenVASRestAPI/releases/download/v1.2.0/MixewayOpenVasRestAPI-1.2.0-SNAPSHOT.jar
-      
+    # command: /usr/bin/java -jar /opt/mixeway/mixeway_gvm.jar  --server.port=8443 --server.ssl.key-store=/opt/mixeway/pki/mixeway.p12 --server.ssl.key-store-password=1qaz@WSX --server.ssl.trust-store=/opt/mixeway/pki/trust.jks  --server.ssl.trust-store-password=changeit --openvasmd.socket=/var/run/gvm/gvmd.sock  --server.ssl.key-alias=mixeway --spring.profiles.active=noauth --logging.level.root=DEBUG
+    # command: /usr/bin/java -jar /opt/mixeway/mixeway_gvm.jar  --server.port=8443 --server.ssl.key-store=/opt/mixeway/pki/mixeway.p12 --server.ssl.key-store-password=1qaz@WSX --server.ssl.trust-store=/opt/mixeway/pki/trust.jks  --server.ssl.trust-store-password=changeit --openvasmd.socket=/var/run/gvm/gvmd.sock  --server.ssl.key-alias=mixeway --spring.profiles.active=noauth --logging.level.pl.orange.bst.mixer=DEBUG
+
     volumes:
       - openvas-var-lib:/var/lib/openvas
       - gvm-var-lib:/var/lib/gvm
