@@ -1,0 +1,128 @@
+version: '2.1'
+
+volumes:
+  redis-data: {}
+  openvas-var-lib: {}
+  gvm-var-lib: {}
+  postgres-data: {}
+  run-redis: {}
+  run-ospd: {}
+  run-gvm: {}
+
+services:
+  gvm-postgres:
+    image: admirito/gvm-postgres:21.4.6
+    environment:
+      PGDATA: /var/lib/postgresql/data
+      POSTGRES_DB: gvmd
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_USER: gvmduser
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  gvmd:
+    # CONNECTED /run/ospd/ospd.sock
+    # image: admirito/gvmd:21
+    # 
+    build: gvmd/.
+    image: kubiaart/gvmd:21.4.5
+
+    environment:
+      GVMD_POSTGRESQL_URI: postgresql://gvmduser:mypassword@gvm-postgres:5432/gvmd?application_name=gvmd
+      # see https://marlam.de/msmtp/ for possible configuration options for the default system account
+      # the MSMTP_ prefix is stripped and keys are used as lowercased configuration variable names
+      # MSMTP_HOST: smtp.example.com
+      # MSMTP_PORT: 25
+      # MSMTP_LOGFILE: "-"
+      # MSMTP_TLS: on
+      # MSMTP_TLS_STARTTLS: on
+      # MSMTP_AUTH: on
+      # MSMTP_USER: username
+      # MSMTP_PASSWORD: password
+    volumes:
+      - openvas-var-lib:/var/lib/openvas
+      - gvm-var-lib:/var/lib/gvm
+      - run-redis:/run/redis
+      - run-ospd:/run/ospd
+      - run-gvm:/run/gvm
+    depends_on:
+      gvm-postgres:
+        condition: service_started
+
+  gsad:
+    #image: admirito/gsad:21
+    
+    build: gsad/.
+    image: kubiaart/gsad:21.4.4
+    volumes:
+      - run-gvm:/run/gvm
+      - run-ospd:/run/ospd
+    ports:
+      - 8080:80
+    
+    environment:
+      GVMD_HOST: gvmd
+      GVMD_PORT: '9390'
+
+    depends_on:
+      gvmd:
+        condition: service_started
+
+  openvas:
+    # LISTENING /run/ospd/ospd.sock
+    # CONNECTED /run/redis/redis.sock
+    #image: kubiaart/openvas-scanner:21
+    build: openvas-scanner/.
+    image: kubiaart/openvas-scanner:21.4.4
+    privileged: true
+    sysctls:
+      net.core.somaxconn: '2048'
+    volumes:
+      - openvas-var-lib:/var/lib/openvas
+      - run-redis:/run/redis
+      - run-ospd:/run/ospd
+
+    depends_on:
+      gvm-postgres:
+        condition: service_started
+
+  # It is recommended to add vm.overcommit_memory=1 into
+  # /etc/systcl.conf on the host
+  redis:
+    # LISTENING /run/redis/redis.sock
+    image: redis:5.0
+    volumes:
+    - run-redis:/run/redis
+    - redis-data:/data
+    command: redis-server --port 0 --unixsocket /run/redis/redis.sock --unixsocketperm 755 --databases 1025
+    privileged: true
+    sysctls:
+      net.core.somaxconn: '2048'
+
+    depends_on:
+      openvas:
+        condition: service_started
+        
+  mixeway:
+  # CONNECTED /run/ospd/ospd.sock
+  #  image: admirito/gvmd:21
+    build: mixeway/.
+    image: kubiaart/mixeway:21.4.5
+  #  environment:
+      # MIXEWAY_SRC_URI: https://github.com/Mixeway/MixewayOpenVASRestAPI/releases/download/v1.2.0/MixewayOpenVasRestAPI-1.2.0-SNAPSHOT.jar
+    # command: /usr/bin/java -jar /opt/mixeway/mixeway_gvm.jar  --server.port=8443 --server.ssl.key-store=/opt/mixeway/pki/mixeway.p12 --server.ssl.key-store-password=1qaz@WSX --server.ssl.trust-store=/opt/mixeway/pki/trust.jks  --server.ssl.trust-store-password=changeit --openvasmd.socket=/var/run/gvm/gvmd.sock  --server.ssl.key-alias=mixeway --spring.profiles.active=noauth --logging.level.root=DEBUG
+    # command: /usr/bin/java -jar /opt/mixeway/mixeway_gvm.jar  --server.port=8443 --server.ssl.key-store=/opt/mixeway/pki/mixeway.p12 --server.ssl.key-store-password=1qaz@WSX --server.ssl.trust-store=/opt/mixeway/pki/trust.jks  --server.ssl.trust-store-password=changeit --openvasmd.socket=/var/run/gvm/gvmd.sock  --server.ssl.key-alias=mixeway --spring.profiles.active=noauth --logging.level.pl.orange.bst.mixer=DEBUG
+
+    volumes:
+      - openvas-var-lib:/var/lib/openvas
+      - gvm-var-lib:/var/lib/gvm
+      - run-redis:/run/redis
+      - run-ospd:/run/ospd
+      - run-gvm:/run/gvm
+      - /etc/mixeway:/opt/mixeway/pki
+
+    ports:
+      - 8443:8443
+    depends_on:
+      gvmd:
+        condition: service_started

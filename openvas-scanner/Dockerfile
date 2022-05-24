@@ -24,4 +24,4 @@ VOLUME /var/lib/openvas \
 COPY docker-entrypoint.sh /usr/local/bin/
 ENTRYPOINT ["/tini", "--", "bash", "/usr/local/bin/docker-entrypoint.sh" ]
 
-CMD ["ospd-openvas", "-l/dev/stdout", "-u", "/run/ospd/ospd-openvas.sock", "-LINFO", "-f"]
+CMD ["ospd-openvas", "-l/dev/stdout", "-u", "/run/ospd/ospd.sock", "-LINFO", "-f"]
