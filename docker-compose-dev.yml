@@ -8,10 +8,11 @@ volumes:
   run-redis: {}
   run-ospd: {}
   run-gvm: {}
+  mixeway-pki: {}
 
 services:
   gvm-postgres:
-    image: admirito/gvm-postgres:21.4.6
+    image: admirito/gvm-postgres:21.4.5
     environment:
       PGDATA: /var/lib/postgresql/data
       POSTGRES_DB: gvmd
@@ -119,7 +120,7 @@ services:
       - run-redis:/run/redis
       - run-ospd:/run/ospd
       - run-gvm:/run/gvm
-      - /etc/mixeway:/opt/mixeway/pki
+      - mixeway-pki:/opt/mixeway/pki
 
     ports:
       - 8443:8443
